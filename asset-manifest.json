@@ -1,0 +1,22 @@
+{
+  "files": {
+    "main.css": "/mtg-montecarlo-sim/static/css/main.db5636c1.chunk.css",
+    "main.js": "/mtg-montecarlo-sim/static/js/main.6f781c5f.chunk.js",
+    "main.js.map": "/mtg-montecarlo-sim/static/js/main.6f781c5f.chunk.js.map",
+    "runtime-main.js": "/mtg-montecarlo-sim/static/js/runtime-main.30b849e0.js",
+    "runtime-main.js.map": "/mtg-montecarlo-sim/static/js/runtime-main.30b849e0.js.map",
+    "static/js/2.ed197acf.chunk.js": "/mtg-montecarlo-sim/static/js/2.ed197acf.chunk.js",
+    "static/js/2.ed197acf.chunk.js.map": "/mtg-montecarlo-sim/static/js/2.ed197acf.chunk.js.map",
+    "index.html": "/mtg-montecarlo-sim/index.html",
+    "precache-manifest.135f433a744f661e39acdf4a77b65bff.js": "/mtg-montecarlo-sim/precache-manifest.135f433a744f661e39acdf4a77b65bff.js",
+    "service-worker.js": "/mtg-montecarlo-sim/service-worker.js",
+    "static/css/main.db5636c1.chunk.css.map": "/mtg-montecarlo-sim/static/css/main.db5636c1.chunk.css.map",
+    "static/js/2.ed197acf.chunk.js.LICENSE": "/mtg-montecarlo-sim/static/js/2.ed197acf.chunk.js.LICENSE"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.30b849e0.js",
+    "static/js/2.ed197acf.chunk.js",
+    "static/css/main.db5636c1.chunk.css",
+    "static/js/main.6f781c5f.chunk.js"
+  ]
+}
