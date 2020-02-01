@@ -264,12 +264,12 @@ const App: React.FC = () => {
       <div className="header" />
       <div className="content">
         <div  id="deck">
-          <div className="line">
+          <div className="actions line">
           <button className="left fill run" onClick={handleClickRun} disabled={running} >RUN</button>
           <input type="number" value={numOfRuns} onChange={e => setRuns(Number.parseInt(e.target.value))} />
           <button className="right fill run" onClick={handleClickRun} disabled={running} >times</button>
           <div className="horizontalSpacer" />
-          <button className="add" onClick={handleClickAdd}>Add Condition</button>
+          <button className="add fill" onClick={handleClickAdd}>Add Condition</button>
           </div>
           
           <em>Deck</em>

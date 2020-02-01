@@ -31,6 +31,7 @@ input, select {
 input, select, button {
   border:1px solid #ccc;
   height:2em;
+  width: 40px;
 }
 
 button {
@@ -54,12 +55,12 @@ button:disabled {
 }
 
 input[type=number] {
-  width: 50px;
+  width: 40px;
   text-align: center;
 }
 
 input[readonly] {
-  width: 50px;
+  width: 40px;
   text-align: center;
 }
 
@@ -69,8 +70,19 @@ div.line {
 }
 
 div.single {
-  
+  display: flex;
 }
+div.single div.line {
+  width: 100%;
+}
+
+/* root level single items get the wrapper*/
+div#tests > div.single {
+  border: solid 5px white;
+  border-radius: 15px;
+  margin: 2px;
+}
+
 div.single.hovered.canDrop {  background: yellow;}
 div.group.hovered.canDrop > div {  border-color: yellow;}
 
@@ -112,6 +124,8 @@ div.groupHeader {
   flex-direction:column;
   text-align: center;
   margin: 1em;
+  width: 90%;
+  max-width: 400px;
 }
 
 #deck textarea {
@@ -152,8 +166,20 @@ button.run {
 
 button.add {
  background-color: darkorange;
+ min-width: 4em;
 }
 
 #deck div.line div.horizontalSpacer {
   width: 20px;
+}
+
+#deck div.line.actions button {
+  border: solid 5px green;
+}
+#deck div.line.actions input, button {
+  height: 4em;
+}
+#deck div.line.actions input {
+  flex-grow: .5;
+  flex-shrink: 2;
 }

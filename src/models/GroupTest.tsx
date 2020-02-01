@@ -6,7 +6,7 @@ export class GroupTest extends TestCase {
 //   public getChildren: Array<TestCase> = [];
   public groupType: GroupType = GroupType.ALL;
   public name?: string;
-  constructor(id: number) {
+  constructor(readonly id: number) {
     super(id, TestType.Group);
   }
   clone(): TestCase {

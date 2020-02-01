@@ -8,7 +8,7 @@ export class SingleTest extends TestCase {
   public match: MatchType = MatchType.Name;
   public compare: CompareType = CompareType.GT;
   public amount: number = 1;
-  constructor(id: number, public target: string) {
+  constructor(readonly id: number, public target: string) {
     super(id, TestType.Single);
   }
   clone(): TestCase {
