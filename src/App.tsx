@@ -11,7 +11,8 @@ import TestComponent from './components/TestComponent';
 import {TOTAL_RUNS, HandlersContext} from './definitions/constants'
 import { TestType, GroupType, CompareType } from './definitions/enums';
 import { DndProvider } from 'react-dnd'
-import Backend from 'react-dnd-html5-backend'
+import MultiBackend from 'react-dnd-multi-backend';
+import HTML5toTouch from 'react-dnd-multi-backend/dist/esm/HTML5toTouch';
 import TrashcanComponent from './components/TrashcanComponent';
 import useLocalStorage from './useLocalStorage'
 
@@ -276,14 +277,14 @@ const App: React.FC = () => {
           <textarea value={stateDeck} onChange={e => setDeck(e.target.value)} />
           <div className="line">
             <button id="save" disabled={saved} onClick={handleSave}>Save</button>
-             <DndProvider backend={Backend}>
+             <DndProvider backend={MultiBackend} options={HTML5toTouch}>
              <TrashcanComponent dropHandler={onTrashDrop} />
              </DndProvider>
           </div>
         </div>
         
         <HandlersContext.Provider value={handlers}>
-        <DndProvider backend={Backend}>
+        <DndProvider backend={MultiBackend} options={HTML5toTouch}>
         <div id="tests">
           {getRootTests().sort((a,b) => a.id - b.id).map(t => <TestComponent key={t.id + "_tst"} test={t} allTests={stateTests} />)}
         </div>
