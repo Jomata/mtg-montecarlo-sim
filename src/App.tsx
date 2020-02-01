@@ -14,7 +14,7 @@ import { DndProvider } from 'react-dnd'
 import MultiBackend from 'react-dnd-multi-backend';
 import HTML5toTouch from 'react-dnd-multi-backend/dist/esm/HTML5toTouch';
 import TrashcanComponent from './components/TrashcanComponent';
-import useLocalStorage from './useLocalStorage'
+import useLocalStorage from './utils/useLocalStorage'
 
 const deckString = `28 Mountain (M20) 276
 4 Terror of Mount Velus (THB) 295
@@ -84,15 +84,26 @@ const App: React.FC = () => {
   const [numOfRuns,setRuns] = useState(TOTAL_RUNS)
   const [saved, setSaved] = useState(true)
 
-  console.log(defaultTests , Tests2JSON(defaultTests))
-  let roundTrip = JSON2Tests(Tests2JSON(stateTests))
-  console.log(roundTrip)
+  // console.log(defaultTests , Tests2JSON(defaultTests))
+  // let roundTrip = JSON2Tests(Tests2JSON(stateTests))
+  // console.log(roundTrip)
+
+  //TODO: Disable the run button while fetching card info
+
+  const thisIsATest = () =>  console.log("I am a test")
+  const debouncedDeckPrefetch = _.debounce(Card.prefetchDeck.bind(Card),1000)
 
   // useEffect is causing the initial render to happen twice
   // there's a setState somewhere after this that shouldn't be there
   useEffect(()=>{
       setSaved(false)
   }, [stateTests,stateDeck])
+  useEffect(() => {
+    console.log("useEffect","stateDeck")
+    debouncedDeckPrefetch(stateDeck);
+  },[stateDeck])
+
+  
 
   function updateTest(id:number, transform:(test:TestCase) => void)
   {
@@ -241,10 +252,11 @@ const App: React.FC = () => {
 
   function runSim() {
     setRunning(true)
+     
     let newTests = TestCase.clone(stateTests)
 
     let rootTests: Array<TestCase> = newTests.filter(t => t.parentId == null) 
-    let deck = Card.parseText(stateDeck)
+    let deck = Card.parseDeck(stateDeck)
     for (let i = 0; i < TOTAL_RUNS; i++) {
       let shuffled = _.shuffle(deck);
       rootTests.forEach(t => t.IsTrue(shuffled, newTests))
@@ -262,7 +274,19 @@ const App: React.FC = () => {
 
   return (
     <div className="App" style={{ "textAlign": "left" }}>
-      <div className="header" />
+      <div className="header">
+      {/* <ul className="nav nav-pills">
+        <li role="presentation" className="dropdown">
+          <a className="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
+            Actions <span className="caret"></span>
+          </a>
+          <ul className="dropdown-menu">
+            ...
+          </ul>
+        </li>
+        <li role="presentation"><a href="#">?</a></li>
+      </ul> */}
+      </div>
       <div className="content">
         <div  id="deck">
           <div className="actions line">
@@ -274,7 +298,7 @@ const App: React.FC = () => {
           </div>
           
           <em>Deck</em>
-          <textarea value={stateDeck} onChange={e => setDeck(e.target.value)} />
+          <textarea value={stateDeck} onChange={e => {setDeck(e.target.value); _.debounce(thisIsATest,1000)}} />
           <div className="line">
             <button id="save" disabled={saved} onClick={handleSave}>Save</button>
              <DndProvider backend={MultiBackend} options={HTML5toTouch}>

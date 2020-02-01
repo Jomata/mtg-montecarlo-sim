@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { LocalStorage } from "./LocalStorage";
 
 //Thanks to: https://usehooks.com/useLocalStorage/
 
@@ -6,7 +7,7 @@ function useLocalStorage(key:string, initialValue:string):[string,(value:string)
   
     const [storedValue, setStoredValue] = useState(() => {
       try {  
-        const item = window.localStorage.getItem(key);
+        const item = LocalStorage.Load(key)
         return item || initialValue;
       } catch (error) {
         return initialValue;
@@ -20,7 +21,7 @@ function useLocalStorage(key:string, initialValue:string):[string,(value:string)
         const valueToStore = value;
         setStoredValue(valueToStore);
         //Potential upgrade: Define an ISerializable interface and receive and object of that interface
-        localStorage.setItem(key, valueToStore);
+        LocalStorage.Save(key,valueToStore);
       } catch (error) {
         console.log(error);
       }

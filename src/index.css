@@ -35,11 +35,13 @@ input, select, button {
 }
 
 button {
-  border-radius:10px;
+  border-radius: 10px;
   cursor: pointer;
   display: inline-block;
   text-align: center;
   text-decoration: none;
+  border: solid 5px whitesmoke;
+  background-color:lightblue;
 }
 button:disabled {
   cursor: not-allowed;
@@ -124,8 +126,14 @@ div.groupHeader {
   flex-direction:column;
   text-align: center;
   margin: 1em;
-  width: 90%;
+  /* width: 90%; */
+  flex-grow: 1;
   max-width: 400px;
+}
+
+#tests {
+  flex-grow: 2;
+  margin: 0 1em;
 }
 
 #deck textarea {
