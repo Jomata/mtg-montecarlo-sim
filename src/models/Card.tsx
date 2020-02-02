@@ -8,12 +8,12 @@ export class Card {
   public cardNumber?:number
 
   /* Scryfall data */
-  public cmc?:number;
-  public cardType?:string;
-  public power?:number;
-  public toughness?:number;
-  public oracleText?:string;
-  public manaCost?:string;
+  public cmc:number = Number.NaN;
+  public cardType:string = "";
+  public power:number = Number.NaN;
+  public toughness:number = Number.NaN;
+  public oracleText:string = "";
+  public manaCost:string = "";
 
   public getLSKey():string 
   {
@@ -22,7 +22,7 @@ export class Card {
 
   constructor(public name: string) { }
 
-  private static readonly cardRegEx = /([0-9]+)[\s]+([\S\s]+)[\s]+\(([\S]{3})\)[\s]+([0-9]+)/
+  private static readonly cardRegEx = /([0-9]+)\s?([^(]+)\s?(\([A-Z]{3}\))?\s?([0-9]+)?/
   //EJ: 32 Mountain (M20) 276
   static parseLine(cardStr:string):[number,Card|null] {
     let matches = cardStr.trim().match(Card.cardRegEx)
@@ -31,11 +31,11 @@ export class Card {
     }
     else {
       let m = matches as RegExpMatchArray
-      if (m.length === 5) {
+      if (m.length > 2) { //I only really need amount + name, set+code are just bonus
         let copies = Number.parseInt(m[1])
-        let card = new Card(m[2])
-        card.cardSet = m[3]
-        card.cardNumber = Number.parseInt(m[4])
+        let card = new Card(m[2].trim())
+        if(m.length > 3 && m[3] !== undefined) card.cardSet = m[3].replace("(","").replace(")","")
+        if(m.length > 4 && m[4] !== undefined) card.cardNumber = Number.parseInt(m[4])
         return [copies,card];
         //return new Array<Card>(copies).fill(card)
       }
@@ -60,35 +60,42 @@ export class Card {
 
   }
 
-  static fetchCardInfo(card:Card):void {
-    
-  }
-
-  static prefetchDeck(deckStr:string):void {
-    // console.log("Card.prefetchDeck")
-    let cards = _.uniqBy( this.parseDeck(deckStr), c => c.name )
-    cards.forEach(c => {
+  static fetchCardInfo(c:Card):Promise<Card> {
+    return new Promise<Card>((resolve, reject) => {
+      
       let cacheCard = LocalStorage.LoadT(c.getLSKey(), Card.fromJSON)
       if(cacheCard == null) {
         // console.log("Fetching",c.name,"data from scryfall")
         scryfall.getCardByName(c.name, true).then(res => {
-          // console.log("fetched data for",c.name)
-          c.cardType = res.type_line
-          c.cmc = res.cmc
-          c.manaCost = res.mana_cost
-          c.power = res.power?Number.parseInt(res.power):undefined
-          c.toughness = res.toughness?Number.parseInt(res.toughness):undefined
-          c.oracleText = res.oracle_text
+          //  console.log("fetched data for",c.name,res)
+          let newCard = new Card(res.name)
+          newCard.cardSet = res.set.toUpperCase()
+          newCard.cardNumber = res.collector_number?Number.parseInt(res.collector_number):c.cardNumber
+          newCard.cardType = res.type_line
+          newCard.cmc = res.cmc
+          newCard.manaCost = res.mana_cost
+          newCard.power = res.power?Number.parseInt(res.power):Number.NaN
+          newCard.toughness = res.toughness?Number.parseInt(res.toughness):Number.NaN
+          newCard.oracleText = res.oracle_text||""
           // console.log("response to",c,"->",res)
-          LocalStorage.SaveT(c.getLSKey(),c,Card.toJSON)
-
-        }).catch(err => {
+          LocalStorage.SaveT(c.getLSKey(),newCard,Card.toJSON)
+          if(newCard.getLSKey() !== c.getLSKey()) LocalStorage.SaveT(newCard.getLSKey(),newCard,Card.toJSON)
+          resolve(newCard)
+        }, err => {
           console.log("error fetching",c,"->",err)
+          reject(err)
         })
       } else {
         // console.log("Cached data for",c.name,"is",cacheCard)
+        resolve(cacheCard)
       }
-    })
+    });
+  }
+
+  static prefetchDeck(deckStr:string):Promise<Array<Card>> {
+    console.log("Card.prefetchDeck")
+    let cards = _.uniqBy( Card.parseDeck(deckStr), c => c.name )
+    return Promise.all( cards.map(Card.fetchCardInfo) )
   }
 
   static toJSON(card:Card):string 

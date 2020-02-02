@@ -6,8 +6,9 @@ import { COLOR_ZERO, COLOR_HUND, HandlersContext } from "../definitions/constant
 import { TestCase } from "../models/TestCase"
 import { DragItem } from "../definitions/types"
 import { useDrag, useDrop } from "react-dnd"
+import { Card } from "../models/Card"
 
-const GroupTestComponent: React.FC<{test:GroupTest, allTests:Array<TestCase>}> = (props) => {
+const GroupTestComponent: React.FC<{test:GroupTest, allTests:Array<TestCase>, cards:Array<Card>}> = (props) => {
 
     const context = useContext(HandlersContext)
     
@@ -54,7 +55,7 @@ const GroupTestComponent: React.FC<{test:GroupTest, allTests:Array<TestCase>}> =
           <input readOnly disabled value="of:" />
         </div>
         <div className="children">
-        {props.test.getChildren(props.allTests).sort((a,b)=>a.id-b.id).map(ct => <TestComponent key={ct.id+"_cmp"} test={ct} allTests={props.allTests} />)}
+        {props.test.getChildren(props.allTests).sort((a,b)=>a.id-b.id).map(ct => <TestComponent key={ct.id+"_cmp"} test={ct} allTests={props.allTests} cards={props.cards} />)}
         </div>
       </div>
     )

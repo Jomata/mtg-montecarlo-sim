@@ -21,6 +21,10 @@ div.group {
   border-radius: 15px; */
 }
 
+div.groupHeader > select {
+  width: 60px;
+}
+
 input, select {
   box-sizing: border-box;
   -moz-box-sizing: border-box;

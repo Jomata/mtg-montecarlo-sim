@@ -36,9 +36,22 @@ export class SingleTest extends TestCase {
     let hand = deck.slice(0, INITIAL_DRAW + this.turn);
     let result: boolean = false;
     let matches: number = 0;
+    let targetN = Number.parseInt(this.target)
     switch (this.match) {
       case MatchType.Name:
         matches = hand.filter(c => c.name.includes(this.target)).length;
+        break;
+      case MatchType.CMC:
+        matches = hand.filter(c => c.cmc === targetN).length;
+        break;
+      case MatchType.CardType:
+        matches = hand.filter(c => c.cardType.includes(this.target)).length;
+        break;
+      case MatchType.Power:
+        matches = hand.filter(c => c.power === targetN).length;
+        break;
+      case MatchType.Toughness:
+        matches = hand.filter(c => c.toughness === targetN).length;
         break;
     }
     switch (this.compare) {

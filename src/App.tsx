@@ -9,12 +9,15 @@ import { GroupTest } from './models/GroupTest';
 import { SingleTest } from './models/SingleTest';
 import TestComponent from './components/TestComponent';
 import {TOTAL_RUNS, HandlersContext} from './definitions/constants'
-import { TestType, GroupType, CompareType } from './definitions/enums';
+import { TestType, GroupType, CompareType, MatchType } from './definitions/enums';
 import { DndProvider } from 'react-dnd'
 import MultiBackend from 'react-dnd-multi-backend';
 import HTML5toTouch from 'react-dnd-multi-backend/dist/esm/HTML5toTouch';
 import TrashcanComponent from './components/TrashcanComponent';
 import useLocalStorage from './utils/useLocalStorage'
+import AwesomeDebouncePromise from 'awesome-debounce-promise'
+import useConstant from 'use-constant'
+import {useAsync} from 'react-async-hook'
 
 const deckString = `28 Mountain (M20) 276
 4 Terror of Mount Velus (THB) 295
@@ -35,12 +38,12 @@ const json = [
   { id: 5, type: TestType.Single, target: "Mountain", parent: 6, amount: 5, turn: 5, compare: CompareType.GT },
   { id: 14, type: TestType.Group, group: GroupType.ALL, parent: 15, name: "Combo Pieces" },
   { id: 7, type: TestType.Single, turn: 4, target: "Fires of Invention", parent: 14 },
-  { id: 8, type: TestType.Single, turn: 5, target: "Purphoros", parent: 14 },
+  { id: 8, type: TestType.Single, turn: 5, target: "Purphoros, Bronze-Blooded", parent: 14 },
   { id: 9, type: TestType.Single, turn: 5, target: "Cavalier of Flame", parent: 14 },
   { id: 10, type: TestType.Group, group: GroupType.ANY, parent: 14, name: "Any 1 extra" },
-  { id: 11, type: TestType.Single, turn: 5, target: "Terror", parent: 10 },
-  { id: 12, type: TestType.Single, turn: 5, target: "Drakuseth", parent: 10 },
-  { id: 13, type: TestType.Single, turn: 5, target: "Ilharg", parent: 10 },
+  { id: 11, type: TestType.Single, turn: 5, target: "Terror of Mount Velus", parent: 10 },
+  { id: 12, type: TestType.Single, turn: 5, target: "Drakuseth, Maw of Flames", parent: 10 },
+  { id: 13, type: TestType.Single, turn: 5, target: "Ilharg, the Raze-Boar", parent: 10 },
   { id: 15, type: TestType.Group, group: GroupType.ALL, parent: null, name: "Magical Xmas Land" },
 ]
 
@@ -77,49 +80,51 @@ const App: React.FC = () => {
   // console.log("Main App initializing")
   const [persistedDeck, persistDeck] = useLocalStorage("deck",deckString)
   const [persistedTests, persistTests] = useLocalStorage("tests",Tests2JSON(defaultTests))
-
   const [stateDeck, setDeck] = useState(persistedDeck)
+
+  const prefetchCards = async (deckString:string) => {
+    Card.prefetchDeck(stateDeck).then(cards => {
+      console.log("card prefetchDeck completed")
+      setCards(cards)
+    })
+  }
+
+  const [stateCards, setCards] = useState(() => {
+    console.log("initial prefetchDec start")
+    prefetchCards(stateDeck);
+    return [] as Array<Card>
+  })
   const [stateTests,setTests] = useState(JSON2Tests(persistedTests))
-  const [running,setRunning] = useState(false)
+  // const [running,setRunning] = useState(false)
   const [numOfRuns,setRuns] = useState(TOTAL_RUNS)
   const [saved, setSaved] = useState(true)
-
-  // console.log(defaultTests , Tests2JSON(defaultTests))
-  // let roundTrip = JSON2Tests(Tests2JSON(stateTests))
-  // console.log(roundTrip)
-
+  
   //TODO: Disable the run button while fetching card info
 
-  const thisIsATest = () =>  console.log("I am a test")
-  const debouncedDeckPrefetch = _.debounce(Card.prefetchDeck.bind(Card),1000)
-
-  // useEffect is causing the initial render to happen twice
-  // there's a setState somewhere after this that shouldn't be there
+  const debouncedPrefetch = useConstant(() =>
+    AwesomeDebouncePromise(prefetchCards, 500)
+  );
+  const debouncedPrefetchAsync = useAsync(debouncedPrefetch,[stateDeck])
+  
   useEffect(()=>{
       setSaved(false)
-  }, [stateTests,stateDeck])
-  useEffect(() => {
-    console.log("useEffect","stateDeck")
-    debouncedDeckPrefetch(stateDeck);
-  },[stateDeck])
+  }, [stateTests,stateDeck])  
 
-  
-
-  function updateTest(id:number, transform:(test:TestCase) => void)
+  const updateTest = (id:number, transform:(test:TestCase) => void) =>
   {
     setTests(tests => tests.map(t => {
       if(t.id === id)  transform(t); 
       return t;
       }))
   }
-  function updateSingleTest(id:number, transform:(test:SingleTest) => void)
+  const updateSingleTest = (id:number, transform:(test:SingleTest) => void) =>
   {
     setTests(tests => tests.map(t => {
       if(t.id === id && t instanceof SingleTest) transform(t); 
       return t;
       }))
   }
-  function updateGroupTest(id:number, transform:(test:GroupTest) => void)
+  const updateGroupTest = (id:number, transform:(test:GroupTest) => void) =>
   {
     setTests(tests => tests.map(t => {
       if(t.id === id && t instanceof GroupTest) transform(t); 
@@ -128,7 +133,7 @@ const App: React.FC = () => {
   }
 
   const onChangeTestTurn = (id:number,turn:number) => updateSingleTest(id, t => t.turn = turn)
-  const onChangeSingleTarget = (id:number,target:string) => updateSingleTest(id, t => t.target = target)
+  const onChangeSingleTarget = (id:number,target:string,match?:MatchType) => updateSingleTest(id, t => {console.log(id,target,match);t.target = target; t.match = match?match:t.match})
   const onChangeGroupName = (id:number,name:string) => updateGroupTest(id, t => t.name = name)
   const onChangeGroupType = (id:number,group:GroupType) => updateGroupTest(id, t => t.groupType = group)
   const onChangeSingleCompare = (id:number,compare:CompareType) => updateSingleTest(id,t => t.compare = compare)
@@ -234,37 +239,32 @@ const App: React.FC = () => {
     onDragDrop:onDragDrop,
     checkCanDrop:checkCanDrop
   }
-  function handleClickAdd() {
-    setTests(prevTests => [...prevTests, new SingleTest(1 + Math.max(0, ...prevTests.map(t => t.id)), "")])
-  }
-  function handleClickRun() {
-    runSim();
-  }
-  function handleSave() {
+  const getRootTests = () => { return stateTests.filter(t => t.parentId == null)  }
+  const handleClickAdd = () => setTests(prevTests => [...prevTests, new SingleTest(1 + Math.max(0, ...prevTests.map(t => t.id)), "")])
+  const handleClickRun = () => runSimAsync.execute()
+  const handleSave = () => {
     persistDeck(stateDeck)
     persistTests(Tests2JSON(stateTests))
     setSaved(true)
   }
 
-  function getRootTests() {
-    return stateTests.filter(t => t.parentId == null)
-  }
-
-  function runSim() {
-    setRunning(true)
-     
+  const runSim = async () => {
+    console.log("runSim","start")
+    console.log(stateCards)
     let newTests = TestCase.clone(stateTests)
 
     let rootTests: Array<TestCase> = newTests.filter(t => t.parentId == null) 
-    let deck = Card.parseDeck(stateDeck)
+    let deck = Card.parseDeck(stateDeck).flatMap(deck => {return stateCards.find(sc => sc.name === deck.name)||[] })
     for (let i = 0; i < TOTAL_RUNS; i++) {
       let shuffled = _.shuffle(deck);
       rootTests.forEach(t => t.IsTrue(shuffled, newTests))
     }
 
     setTests(newTests)
-    setRunning(false)
+    console.log("runSim","end")
   }
+  const runSimAsync = useAsync(runSim, [])
+
 
   //Handle the deck just as a big string for the app, and only parse it as a deck when we click run
   //we can try and pre-fetch the card info in the background maybe?
@@ -290,15 +290,15 @@ const App: React.FC = () => {
       <div className="content">
         <div  id="deck">
           <div className="actions line">
-          <button className="left fill run" onClick={handleClickRun} disabled={running} >RUN</button>
+          <button className="left fill run" onClick={handleClickRun} disabled={debouncedPrefetchAsync.loading||runSimAsync.loading} >RUN</button>
           <input type="number" value={numOfRuns} onChange={e => setRuns(Number.parseInt(e.target.value))} />
-          <button className="right fill run" onClick={handleClickRun} disabled={running} >times</button>
+          <button className="right fill run" onClick={handleClickRun} disabled={debouncedPrefetchAsync.loading||runSimAsync.loading} >times</button>
           <div className="horizontalSpacer" />
           <button className="add fill" onClick={handleClickAdd}>Add Condition</button>
           </div>
           
           <em>Deck</em>
-          <textarea value={stateDeck} onChange={e => {setDeck(e.target.value); _.debounce(thisIsATest,1000)}} />
+          <textarea value={stateDeck} onChange={e => {setDeck(e.target.value); debouncedPrefetchAsync.execute(e.target.value);}} />
           <div className="line">
             <button id="save" disabled={saved} onClick={handleSave}>Save</button>
              <DndProvider backend={MultiBackend} options={HTML5toTouch}>
@@ -310,7 +310,7 @@ const App: React.FC = () => {
         <HandlersContext.Provider value={handlers}>
         <DndProvider backend={MultiBackend} options={HTML5toTouch}>
         <div id="tests">
-          {getRootTests().sort((a,b) => a.id - b.id).map(t => <TestComponent key={t.id + "_tst"} test={t} allTests={stateTests} />)}
+          {getRootTests().sort((a,b) => a.id - b.id).map(t => <TestComponent key={t.id + "_tst"} test={t} allTests={stateTests} cards={stateCards} />)}
         </div>
         </DndProvider>
         </HandlersContext.Provider>
