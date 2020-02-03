@@ -1,22 +1,22 @@
 {
   "files": {
-    "main.css": "/mtg-montecarlo-sim/static/css/main.c36833ad.chunk.css",
-    "main.js": "/mtg-montecarlo-sim/static/js/main.a5fc3a8f.chunk.js",
-    "main.js.map": "/mtg-montecarlo-sim/static/js/main.a5fc3a8f.chunk.js.map",
+    "main.css": "/mtg-montecarlo-sim/static/css/main.77144194.chunk.css",
+    "main.js": "/mtg-montecarlo-sim/static/js/main.bd64af38.chunk.js",
+    "main.js.map": "/mtg-montecarlo-sim/static/js/main.bd64af38.chunk.js.map",
     "runtime-main.js": "/mtg-montecarlo-sim/static/js/runtime-main.30b849e0.js",
     "runtime-main.js.map": "/mtg-montecarlo-sim/static/js/runtime-main.30b849e0.js.map",
-    "static/js/2.f5794b16.chunk.js": "/mtg-montecarlo-sim/static/js/2.f5794b16.chunk.js",
-    "static/js/2.f5794b16.chunk.js.map": "/mtg-montecarlo-sim/static/js/2.f5794b16.chunk.js.map",
+    "static/js/2.e3d639da.chunk.js": "/mtg-montecarlo-sim/static/js/2.e3d639da.chunk.js",
+    "static/js/2.e3d639da.chunk.js.map": "/mtg-montecarlo-sim/static/js/2.e3d639da.chunk.js.map",
     "index.html": "/mtg-montecarlo-sim/index.html",
-    "precache-manifest.54c7709dce8cf0eb17115e92e351b24f.js": "/mtg-montecarlo-sim/precache-manifest.54c7709dce8cf0eb17115e92e351b24f.js",
+    "precache-manifest.e7e818b1c547014766d8b3c78b600494.js": "/mtg-montecarlo-sim/precache-manifest.e7e818b1c547014766d8b3c78b600494.js",
     "service-worker.js": "/mtg-montecarlo-sim/service-worker.js",
-    "static/css/main.c36833ad.chunk.css.map": "/mtg-montecarlo-sim/static/css/main.c36833ad.chunk.css.map",
-    "static/js/2.f5794b16.chunk.js.LICENSE": "/mtg-montecarlo-sim/static/js/2.f5794b16.chunk.js.LICENSE"
+    "static/css/main.77144194.chunk.css.map": "/mtg-montecarlo-sim/static/css/main.77144194.chunk.css.map",
+    "static/js/2.e3d639da.chunk.js.LICENSE": "/mtg-montecarlo-sim/static/js/2.e3d639da.chunk.js.LICENSE"
   },
   "entrypoints": [
     "static/js/runtime-main.30b849e0.js",
-    "static/js/2.f5794b16.chunk.js",
-    "static/css/main.c36833ad.chunk.css",
-    "static/js/main.a5fc3a8f.chunk.js"
+    "static/js/2.e3d639da.chunk.js",
+    "static/css/main.77144194.chunk.css",
+    "static/js/main.bd64af38.chunk.js"
   ]
 }

@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
 
 importScripts(
-  "/mtg-montecarlo-sim/precache-manifest.54c7709dce8cf0eb17115e92e351b24f.js"
+  "/mtg-montecarlo-sim/precache-manifest.e7e818b1c547014766d8b3c78b600494.js"
 );
 
 self.addEventListener('message', (event) => {
