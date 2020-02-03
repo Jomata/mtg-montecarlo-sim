@@ -6,29 +6,35 @@ export class SingleTest extends TestCase {
     
   public turn: number = 1;
   public match: MatchType = MatchType.Name;
-  public compare: CompareType = CompareType.GT;
+  public compareCards: CompareType = CompareType.GT;
+  public compareTarget: CompareType = CompareType.EQ;
   public amount: number = 1;
   constructor(readonly id: number, public target: string) {
     super(id, TestType.Single);
   }
   clone(): TestCase {
     let clone = new SingleTest(this.id, this.target)
-    clone.parentId = this.parentId
-    clone.turn = this.turn
-    clone.match = this.match
-    clone.compare = this.compare
-    clone.amount = this.amount
+    Object.assign(clone,this)
     return clone;
   }
   public toString() {
-    switch (this.compare) {
+    let str:string = "Draw "
+    switch (this.compareCards) {
       case CompareType.EQ:
-        return `${this.amount} ${this.target} by T${this.turn}`;
+        str += "exactly"
+        break;
       case CompareType.GT:
-        return `${this.amount}+ ${this.target} by T${this.turn}`;
+        str += "at least"
+        break;
       case CompareType.LT:
-        return `${this.amount}- ${this.target} by T${this.turn}`;
+        str += "at most"
+        break;
     }
+
+    str += " " + this.amount + " cards with " + this.match + " " + this.compareTarget + " " + this.target
+    str += " by turn " + this.turn
+
+    return str;
   }
   protected runTest(deck: Array<Card>): boolean {
     //let result = 10 * Math.random() > this.id
@@ -37,24 +43,63 @@ export class SingleTest extends TestCase {
     let result: boolean = false;
     let matches: number = 0;
     let targetN = Number.parseInt(this.target)
+
+    let selectorS:(c:Card)=>string = (c) => "";
+    let comparerS:(s:string)=>Boolean = (s) => false
+    let selectorN:(c:Card)=>number = (c) => NaN;
+    let comparerN:(n:number)=>Boolean = (n) => false
+    let testVal:"string"|"number"
+
     switch (this.match) {
       case MatchType.Name:
-        matches = hand.filter(c => c.name.includes(this.target)).length;
+        selectorS = (c:Card)=> c.name
+        testVal = "string"
         break;
       case MatchType.CMC:
-        matches = hand.filter(c => c.cmc === targetN).length;
+        selectorN = (c:Card) => c.cmc
+        testVal = "number"
         break;
       case MatchType.CardType:
-        matches = hand.filter(c => c.cardType.includes(this.target)).length;
+        selectorS = (c:Card)=> c.cardType
+        testVal = "string"
         break;
       case MatchType.Power:
-        matches = hand.filter(c => c.power === targetN).length;
+        selectorN = (c:Card) => c.power
+        testVal = "number"
         break;
       case MatchType.Toughness:
-        matches = hand.filter(c => c.toughness === targetN).length;
+        selectorN = (c:Card) => c.toughness
+        testVal = "number"
         break;
     }
-    switch (this.compare) {
+
+    switch (this.compareTarget) {
+      case CompareType.EQ:
+        comparerS = (s:string) => s.includes(this.target)
+        comparerN = (n:number) => n === targetN
+      break;
+      case CompareType.NE:
+        comparerS = (s:string) => !s.includes(this.target)
+        comparerN = (n:number) => n !== targetN
+      break;
+      case CompareType.GT:
+        comparerN = (n:number) => n >= targetN
+      break;
+      case CompareType.LT:
+        comparerN = (n:number) => n <= targetN
+      break;
+    }
+
+    if(testVal === "number")
+    {
+      matches = hand.map(selectorN).filter(comparerN).length;
+    }
+    else if(testVal === "string")
+    {
+      matches = hand.map(selectorS).filter(comparerS).length;
+    }
+
+    switch (this.compareCards) {
       case CompareType.EQ:
         result = matches === this.amount;
         break;

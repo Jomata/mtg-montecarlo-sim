@@ -54,12 +54,6 @@ export class Card {
     })
   }
 
-  //try and load the info from the cache, if we can't, then load the scryfall library
-  //for now just using scryfall
-  static getCardInfo():void {
-
-  }
-
   static fetchCardInfo(c:Card):Promise<Card> {
     return new Promise<Card>((resolve, reject) => {
       
@@ -93,7 +87,7 @@ export class Card {
   }
 
   static prefetchDeck(deckStr:string):Promise<Array<Card>> {
-    console.log("Card.prefetchDeck")
+    // console.log("Card.prefetchDeck")
     let cards = _.uniqBy( Card.parseDeck(deckStr), c => c.name )
     return Promise.all( cards.map(Card.fetchCardInfo) )
   }

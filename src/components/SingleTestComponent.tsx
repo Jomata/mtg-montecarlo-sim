@@ -58,8 +58,8 @@ const SingleTestComponent: React.FC<{test:SingleTest, cards:Array<Card>}> = (pro
         
         <select value={selectedValue} className="fill" onChange={(e) => {
           const [match,value] = e.target.value.split(":")
-          const mType: MatchType = MatchType[match as keyof typeof MatchType];
-          console.log(match,"==>",mType)
+          const mType: MatchType = match as MatchType;
+          // console.log(match,"==>",mType)
           context.onChangeSingleTarget(props.test.id,value, mType )
         }} >
           <option defaultChecked>Select a condition...</option>
@@ -83,7 +83,7 @@ const SingleTestComponent: React.FC<{test:SingleTest, cards:Array<Card>}> = (pro
 
 
         {/* https://react-select.com/ maybe? */}
-        <select value={props.test.compare} onChange={(e) => context.onChangeSingleCompare(props.test.id,e.target.value as CompareType)}>
+        <select value={props.test.compareCards} onChange={(e) => context.onChangeSingleCompare(props.test.id,e.target.value as CompareType)}>
           <option value={CompareType.GT}>&ge;</option>
           <option value={CompareType.EQ}>=</option>
           <option value={CompareType.LT}>&le;</option>

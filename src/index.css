@@ -25,6 +25,13 @@ div.groupHeader > select {
   width: 60px;
 }
 
+div.verbose select {
+  width:auto;
+}
+div.verbose input:read-only {
+  width: 50px;
+}
+
 input, select {
   box-sizing: border-box;
   -moz-box-sizing: border-box;
@@ -161,7 +168,7 @@ div.groupHeader {
   background-color: lightblue;
 }
 #save:disabled {
-  background-color: darkslategrey;
+  
 }
 
 #trash.hovered {

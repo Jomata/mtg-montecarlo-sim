@@ -14,6 +14,7 @@ export const HandlersContext = React.createContext({
     onChangeGroupType:(id:number,group:GroupType) => {},
     onChangeSingleTarget:(id:number,target:string, match?:MatchType) => {},
     onChangeSingleCompare:(id:number,compare:CompareType) => {},
+    onChangeSingleCompareTarget:(id:number,compare:CompareType) => {},
     onChangeSingleAmount:(id:number,amount:number) => {},
     onDragDrop:(draggedTestId:number,droppedOnTestId:number) => {},
     checkCanDrop:(draggedTestId:number,droppedOnTestId:number):boolean => true

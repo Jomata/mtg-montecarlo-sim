@@ -69,7 +69,7 @@ let defaultTests: Array<TestCase> = json.map(o => {
     if (o.turn !== undefined)
       test.turn = o.turn as number;
     if (o.compare !== undefined)
-      test.compare = o.compare as CompareType;
+      test.compareCards = o.compare as CompareType;
 
     return test;
   }
@@ -84,23 +84,20 @@ const App: React.FC = () => {
 
   const prefetchCards = async (deckString:string) => {
     Card.prefetchDeck(stateDeck).then(cards => {
-      console.log("card prefetchDeck completed")
+      // console.log("card prefetchDeck completed")
       setCards(cards)
     })
   }
 
   const [stateCards, setCards] = useState(() => {
-    console.log("initial prefetchDec start")
+    // console.log("initial prefetchDec start")
     prefetchCards(stateDeck);
     return [] as Array<Card>
   })
   const [stateTests,setTests] = useState(JSON2Tests(persistedTests))
-  // const [running,setRunning] = useState(false)
   const [numOfRuns,setRuns] = useState(TOTAL_RUNS)
   const [saved, setSaved] = useState(true)
   
-  //TODO: Disable the run button while fetching card info
-
   const debouncedPrefetch = useConstant(() =>
     AwesomeDebouncePromise(prefetchCards, 500)
   );
@@ -108,6 +105,7 @@ const App: React.FC = () => {
   
   useEffect(()=>{
       setSaved(false)
+      // console.log(stateTests.map(t => t.toString()))
   }, [stateTests,stateDeck])  
 
   const updateTest = (id:number, transform:(test:TestCase) => void) =>
@@ -133,10 +131,11 @@ const App: React.FC = () => {
   }
 
   const onChangeTestTurn = (id:number,turn:number) => updateSingleTest(id, t => t.turn = turn)
-  const onChangeSingleTarget = (id:number,target:string,match?:MatchType) => updateSingleTest(id, t => {console.log(id,target,match);t.target = target; t.match = match?match:t.match})
+  const onChangeSingleTarget = (id:number,target:string,match?:MatchType) => updateSingleTest(id, t => {console.log(id,match,target);t.target = target; t.match = match?match:t.match})
   const onChangeGroupName = (id:number,name:string) => updateGroupTest(id, t => t.name = name)
   const onChangeGroupType = (id:number,group:GroupType) => updateGroupTest(id, t => t.groupType = group)
-  const onChangeSingleCompare = (id:number,compare:CompareType) => updateSingleTest(id,t => t.compare = compare)
+  const onChangeSingleCompare = (id:number,compare:CompareType) => updateSingleTest(id,t => t.compareCards = compare)
+  const onChangeSingleCompareTarget = (id:number,compare:CompareType) =>{console.log(id,compare); updateSingleTest(id,t => t.compareTarget = compare)}
   const onChangeSingleAmount = (id:number,amount:number) => updateSingleTest(id, t => t.amount = amount)
   const checkCanDrop = (draggedTestId:number,droppedOnTestId:number) => {
     if(draggedTestId === droppedOnTestId) {
@@ -237,7 +236,8 @@ const App: React.FC = () => {
     onChangeSingleCompare:onChangeSingleCompare,
     onChangeSingleAmount:onChangeSingleAmount,
     onDragDrop:onDragDrop,
-    checkCanDrop:checkCanDrop
+    checkCanDrop:checkCanDrop,
+    onChangeSingleCompareTarget:onChangeSingleCompareTarget
   }
   const getRootTests = () => { return stateTests.filter(t => t.parentId == null)  }
   const handleClickAdd = () => setTests(prevTests => [...prevTests, new SingleTest(1 + Math.max(0, ...prevTests.map(t => t.id)), "")])
@@ -249,21 +249,26 @@ const App: React.FC = () => {
   }
 
   const runSim = async () => {
+    let start = new Date();
+    let deck = await Promise.all(Card.parseDeck(stateDeck).map(Card.fetchCardInfo))
     console.log("runSim","start")
-    console.log(stateCards)
+    // console.log(stateCards)
     let newTests = TestCase.clone(stateTests)
 
     let rootTests: Array<TestCase> = newTests.filter(t => t.parentId == null) 
-    let deck = Card.parseDeck(stateDeck).flatMap(deck => {return stateCards.find(sc => sc.name === deck.name)||[] })
+    // let deck = Card.parseDeck(stateDeck).flatMap(deck => {return stateCards.find(sc => sc.name === deck.name)||[] })
+    
+    // console.log(deck)
     for (let i = 0; i < TOTAL_RUNS; i++) {
       let shuffled = _.shuffle(deck);
       rootTests.forEach(t => t.IsTrue(shuffled, newTests))
     }
 
     setTests(newTests)
-    console.log("runSim","end")
+    let end = new Date();
+    console.log("runSim","end", end.getTime() - start.getTime())
   }
-  const runSimAsync = useAsync(runSim, [])
+  const runSimAsync = useAsync(runSim,[])
 
 
   //Handle the deck just as a big string for the app, and only parse it as a deck when we click run
@@ -300,7 +305,7 @@ const App: React.FC = () => {
           <em>Deck</em>
           <textarea value={stateDeck} onChange={e => {setDeck(e.target.value); debouncedPrefetchAsync.execute(e.target.value);}} />
           <div className="line">
-            <button id="save" disabled={saved} onClick={handleSave}>Save</button>
+            <button id="save" disabled={saved} onClick={handleSave}>{saved?"Saved!":"Save"}</button>
              <DndProvider backend={MultiBackend} options={HTML5toTouch}>
              <TrashcanComponent dropHandler={onTrashDrop} />
              </DndProvider>
